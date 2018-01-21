@@ -25,14 +25,10 @@ class ProductsPanel extends React.Component {
     });
   }
 
-  updateTreeRoot(node) {
-    let root = node;
-    while (root.parent !== null) {
-      root = root.parent;
-    }
-    this.setState({
-      treeRoot: root,
-    });
+  updateTreeRoot() {
+    this.setState(prevState => ({
+      treeRoot: prevState.treeRoot,
+    }));
   }
 
   addItem(type) {
@@ -45,9 +41,10 @@ class ProductsPanel extends React.Component {
     this.setState((prevState) => {
       const { treeRoot } = prevState;
       treeRoot.children.push({
-        id: Math.random(),
+        id: `${Math.random()}`,
         name: node.itemName,
         type: node.type,
+        children: [],
         parent: treeRoot,
       });
     });
@@ -61,6 +58,7 @@ class ProductsPanel extends React.Component {
         id: Math.random(),
         name: node.itemName,
         type: node.type,
+        children: [],
         parent: category,
       });
     });
@@ -94,7 +92,7 @@ class ProductsPanel extends React.Component {
   handleDeleteNode(node) {
     const { parent } = node;
     parent.children = parent.children.filter(item => item.id !== node.id);
-    this.updateTreeRoot(node);
+    this.updateTreeRoot();
   }
 
   render() {
@@ -104,6 +102,7 @@ class ProductsPanel extends React.Component {
         <Tree root={this.state.treeRoot} onDeleteNode={this.handleDeleteNode} />
         <Dialog
           type={this.state.dialogType}
+          data={this.state.treeRoot}
           onDialogClose={this.closeDialog}
           addNewNode={this.addNewNode}
         />

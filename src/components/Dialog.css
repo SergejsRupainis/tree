@@ -42,6 +42,10 @@
   height: 30px;
 }
 
+.dialog form input[type="text"] {
+  border: 1px solid grey;
+}
+
 .dialog footer {
   text-align: right;
 }

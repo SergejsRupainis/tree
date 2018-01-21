@@ -1,5 +1,5 @@
 import React from 'react';
-import data from '../data/responseData.json';
+// import data from '../data/responseData.json';
 import Overlay from './Overlay';
 import './Dialog.css';
 
@@ -25,7 +25,7 @@ class Dialog extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { type } = nextProps;
+    const { type, data } = nextProps;
     const newState = {
       category: null,
       brand: null,
@@ -33,10 +33,12 @@ class Dialog extends React.Component {
     };
 
     if (type === 'brand' || type === 'product') {
-      newState.category = data.categories.length ? data.categories[0] : null;
+      newState.category = data.children.length ? data.children[0] : null;
       if (type === 'product') {
         newState.brand =
-          newState.category && newState.category.brands.length ? newState.category.brands[0] : null;
+          newState.category && newState.category.children.length
+            ? newState.category.children[0]
+            : null;
       }
     }
     this.setState(newState);
@@ -46,7 +48,7 @@ class Dialog extends React.Component {
     event.preventDefault();
 
     const { itemName } = this.state;
-    if(!itemName) {
+    if (!itemName) {
       alert('Field "Name" is empty. It should not be!');
       return;
     }
@@ -56,10 +58,10 @@ class Dialog extends React.Component {
 
   handleCategoryChange(event) {
     const { value } = event.target;
-    const category = data.categories.find(item => item.id === value);
+    const category = this.props.data.children.find(item => item.id === value);
     let brand;
     if (category) {
-      brand = category.brands.length ? category.brands[0] : null;
+      brand = category.children.length ? category.children[0] : null;
     }
 
     this.setState({
@@ -71,7 +73,7 @@ class Dialog extends React.Component {
   handleBrandChange(event) {
     if (this.state.category) {
       const value = Number(event.target.value);
-      const brand = this.state.category.brands.find(item => item.id === value);
+      const brand = this.state.category.children.find(item => item.id === value);
 
       this.setState({
         brand,
@@ -99,7 +101,7 @@ class Dialog extends React.Component {
       ));
     } else {
       options = (
-        <option disabled selected value>
+        <option disabled value defaultValue>
           {emptyTitle}
         </option>
       );
@@ -109,7 +111,7 @@ class Dialog extends React.Component {
   }
 
   renderForm() {
-    const { type } = this.props;
+    const { type, data } = this.props;
     const { category, brand } = this.state;
     const title = mapDialogTypesToTitles[type];
 
@@ -125,7 +127,7 @@ class Dialog extends React.Component {
                 value={category ? category.id : ''}
                 onChange={this.handleCategoryChange}
               >
-                {data && this.renderOptions(data.categories)}
+                {data && this.renderOptions(data.children)}
               </select>
             </label>
           )}
@@ -138,7 +140,7 @@ class Dialog extends React.Component {
                 value={brand ? brand.id : ''}
                 onChange={this.handleBrandChange}
               >
-                {category && this.renderOptions(category.brands)}
+                {category && this.renderOptions(category.children)}
               </select>
             </label>
           )}
