@@ -12,7 +12,7 @@ const renderNode = (node, onDeleteNode) => (
   <div className="tree-node">
     <span>{node.name}</span>
     <span>
-      <button type="button" onClick={() => onDeleteNode(node)}>
+      <button className="tree-delete-button" type="button" onClick={() => onDeleteNode(node)}>
         Delete
       </button>
     </span>

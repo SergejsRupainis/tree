@@ -1,18 +1,47 @@
-.overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: 100%;
-  z-index: 1000;
-  background-color: #00000066;
-}
-
 .dialog {
   position: absolute;
+  width: 50%;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   background-color: white;
   z-index: 2000;
+}
+
+.dialog-title {
+  overflow: hidden;
+  background-color: #b6b3b366;
+  padding: 5px;
+  margin: 2px;
+}
+
+.dialog-title > span:first-child {
+  display: block;
+  float: left;
+}
+
+.dialog-title > span:nth-child(2) {
+  display: block;
+  float: right;
+}
+
+.dialog form {
+  text-align: left;
+  margin: 15px;
+}
+
+.dialog form label,
+.dialog form label > * {
+  display: block;
+  padding: 3px;
+}
+
+.dialog form select,
+.dialog form input[type="text"] {
+  width: 90%;
+  height: 30px;
+}
+
+.dialog footer {
+  text-align: right;
 }

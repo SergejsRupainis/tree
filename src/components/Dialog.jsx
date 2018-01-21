@@ -44,6 +44,13 @@ class Dialog extends React.Component {
 
   handleSubmit(event) {
     event.preventDefault();
+
+    const { itemName } = this.state;
+    if(!itemName) {
+      alert('Field "Name" is empty. It should not be!');
+      return;
+    }
+
     this.props.addNewNode({ ...this.state, type: this.props.type });
   }
 
@@ -111,6 +118,7 @@ class Dialog extends React.Component {
         <div>
           {(type === 'brand' || type === 'product') && (
             <label htmlFor="category">
+              <span>Category</span>
               <select
                 id="category"
                 name="categoryId"
@@ -123,6 +131,7 @@ class Dialog extends React.Component {
           )}
           {type === 'product' && (
             <label htmlFor="brand">
+              <span>Brand</span>
               <select
                 id="brand"
                 name="brandId"
@@ -145,7 +154,9 @@ class Dialog extends React.Component {
           </label>
         </div>
         <hr />
-        <input type="submit" value={title} />
+        <footer>
+          <input type="submit" value={title} />
+        </footer>
       </form>
     );
   }
