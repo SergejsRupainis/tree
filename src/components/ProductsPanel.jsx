@@ -79,13 +79,13 @@ class ProductsPanel extends React.Component {
   }
 
   addNewNode(node) {
-    if (node.type === 'category') {
-      this.addCategory(node);
-    } else if (node.type === 'brand') {
-      this.addBrand(node);
-    } else if (node.type === 'product') {
-      this.addProduct(node);
-    }
+    const addFunctionName = {
+      category: 'addCategory',
+      brand: 'addBrand',
+      product: 'addProduct',
+    }[node.type];
+
+    this[addFunctionName](node);
     this.closeDialog();
   }
 
