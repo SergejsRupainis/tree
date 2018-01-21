@@ -1,10 +1,10 @@
 import React from 'react';
 import './App.css';
-import ProductsPanel from './ProductsPanel';
+import TreePanel from '../containers/TreePanel';
 
 const App = () => (
   <div className="App">
-    <ProductsPanel />
+    <TreePanel />
   </div>
 );
 

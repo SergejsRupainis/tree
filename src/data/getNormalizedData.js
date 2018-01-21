@@ -18,12 +18,12 @@ const prepareData = () => {
 export default () => {
   prepareData();
 
-  const product = new schema.Entity('product');
-  const brand = new schema.Entity('brand', {
-    products: [product],
+  const products = new schema.Entity('products');
+  const brands = new schema.Entity('brands', {
+    products: [products],
   });
   const category = new schema.Entity('categories', {
-    brands: [brand],
+    brands: [brands],
   });
   const root = new schema.Entity('root', {
     categories: [category],
