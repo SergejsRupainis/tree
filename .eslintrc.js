@@ -10,4 +10,7 @@ module.exports = {
   settings: {
     'import/core-modules': ['prop-types'],
   },
+  rules: {
+    'class-methods-use-this': 0,
+  },
 };

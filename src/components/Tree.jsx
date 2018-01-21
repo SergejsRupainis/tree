@@ -3,9 +3,9 @@ import PropTypes from 'prop-types';
 import TreeNode from './TreeNode';
 import './Tree.css';
 
-const Tree = ({ root }) => (
+const Tree = ({ root, onDeleteNode }) => (
   <div className="tree">
-    <TreeNode node={root} />
+    <TreeNode node={root} onDeleteNode={onDeleteNode} />
   </div>
 );
 

@@ -6,14 +6,14 @@ const childrenPropsToNodeTypes = {
 };
 const dataProps = ['id', 'name'];
 
-const normalizeData = (data, type) => {
+const normalizeData = (data, type, parent) => {
   const newData = {
     type,
   };
   const childrenProp = childrenProps.find(prop => data[prop] !== undefined);
   if (childrenProp && Array.isArray(data[childrenProp])) {
     newData.children = data[childrenProp].map(child =>
-      normalizeData(child, childrenPropsToNodeTypes[childrenProp]));
+      normalizeData(child, childrenPropsToNodeTypes[childrenProp], newData));
   }
   dataProps.forEach((prop) => {
     if (prop in data) {
@@ -24,6 +24,7 @@ const normalizeData = (data, type) => {
     newData.id = 0;
     newData.name = '';
   }
+  newData.parent = parent;
   return newData;
 };
 
@@ -31,5 +32,5 @@ export default (data) => {
   if (data === null || typeof data !== 'object' || Array.isArray(data)) {
     return null;
   }
-  return normalizeData(data, 'root');
+  return normalizeData(data, 'root', null);
 };

@@ -2,24 +2,28 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import './TreeNode.css';
 
-const renderChildren = (children, type) => (
+const renderChildren = (children, type, onDeleteNode) => (
   <div className={type === 'root' ? '' : 'tree-children'}>
-    {children.map(child => <TreeNode key={child.id} node={child} />)}
+    {children.map(child => <TreeNode key={child.id} node={child} onDeleteNode={onDeleteNode} />)}
   </div>
 );
 
-const renderNode = node => (
+const renderNode = (node, onDeleteNode) => (
   <div className="tree-node">
     <span>{node.name}</span>
     <span>
-      <button type="button">Delete</button>
+      <button type="button" onClick={() => onDeleteNode(node)}>
+        Delete
+      </button>
     </span>
-    {node.children && renderChildren(node.children, node.type)}
+    {node.children && renderChildren(node.children, node.type, onDeleteNode)}
   </div>
 );
 
-const TreeNode = ({ node }) =>
-  (node.type === 'root' ? renderChildren(node.children, node.type) : renderNode(node));
+const TreeNode = ({ node, onDeleteNode }) =>
+  (node.type === 'root'
+    ? renderChildren(node.children, node.type, onDeleteNode)
+    : renderNode(node, onDeleteNode));
 
 TreeNode.propTypes = {
   node: PropTypes.shape({
@@ -30,6 +34,7 @@ TreeNode.propTypes = {
       id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
     })),
   }).isRequired,
+  onDeleteNode: PropTypes.func.isRequired,
 };
 
 export default TreeNode;

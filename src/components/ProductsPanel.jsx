@@ -1,35 +1,37 @@
 import React from 'react';
 import ActionPanel from './ActionPanel';
 import Tree from './Tree';
-import CategoryDialog from './CategoryDialog';
-import BrandDialog from './BrandDialog';
-import ProductDialog from './ProductDialog';
+import Dialog from './Dialog';
 import data from '../data/responseData.json';
 import normalizeData from '../data/normalizeData';
 
-const normalizedData = normalizeData(data);
-
-const dialogTypes = {
-  category: CategoryDialog,
-  brand: BrandDialog,
-  product: ProductDialog,
-};
-
 class ProductsPanel extends React.Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
       dialogType: null,
+      treeRoot: normalizeData(data),
     };
 
     this.addItem = this.addItem.bind(this);
-    this.onDialogClose = this.onDialogClose.bind(this);
+    this.closeDialog = this.closeDialog.bind(this);
     this.addNewNode = this.addNewNode.bind(this);
+    this.handleDeleteNode = this.handleDeleteNode.bind(this);
   }
 
-  onDialogClose() {
+  closeDialog() {
     this.setState({
       dialogType: null,
+    });
+  }
+
+  updateTreeRoot(node) {
+    let root = node;
+    while (root.parent !== null) {
+      root = root.parent;
+    }
+    this.setState({
+      treeRoot: root,
     });
   }
 
@@ -39,20 +41,72 @@ class ProductsPanel extends React.Component {
     });
   }
 
+  addCategory(node) {
+    this.setState((prevState) => {
+      const { treeRoot } = prevState;
+      treeRoot.children.push({
+        id: Math.random(),
+        name: node.itemName,
+        type: node.type,
+        parent: treeRoot,
+      });
+    });
+  }
+
+  addBrand(node) {
+    this.setState((prevState) => {
+      const { treeRoot } = prevState;
+      const category = treeRoot.children.find(item => item.id === node.category.id);
+      category.children.push({
+        id: Math.random(),
+        name: node.itemName,
+        type: node.type,
+        parent: category,
+      });
+    });
+  }
+
+  addProduct(node) {
+    this.setState((prevState) => {
+      const { treeRoot } = prevState;
+      const category = treeRoot.children.find(item => item.id === node.category.id);
+      const brand = category.children.find(item => item.id === node.brand.id);
+      brand.children.push({
+        id: Math.random(),
+        name: node.itemName,
+        type: node.type,
+        parent: brand,
+      });
+    });
+  }
+
   addNewNode(node) {
-    console.log(node);
+    if (node.type === 'category') {
+      this.addCategory(node);
+    } else if (node.type === 'brand') {
+      this.addBrand(node);
+    } else if (node.type === 'product') {
+      this.addProduct(node);
+    }
+    this.closeDialog();
+  }
+
+  handleDeleteNode(node) {
+    const { parent } = node;
+    parent.children = parent.children.filter(item => item.id !== node.id);
+    this.updateTreeRoot(node);
   }
 
   render() {
-    const AddNodeDialog = dialogTypes[this.state.dialogType];
-
     return (
       <div className="products-panel">
         <ActionPanel addItem={this.addItem} />
-        <Tree root={normalizedData} />
-        {this.state.dialogType && (
-          <AddNodeDialog onDialogClose={this.onDialogClose} addNewNode={this.addNewNode} />
-        )}
+        <Tree root={this.state.treeRoot} onDeleteNode={this.handleDeleteNode} />
+        <Dialog
+          type={this.state.dialogType}
+          onDialogClose={this.closeDialog}
+          addNewNode={this.addNewNode}
+        />
       </div>
     );
   }
