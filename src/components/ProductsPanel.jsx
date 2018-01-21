@@ -5,6 +5,8 @@ import Dialog from './Dialog';
 import data from '../data/responseData.json';
 import normalizeData from '../data/normalizeData';
 
+import getNormalizedData from '../data/getNormalizedData';
+
 class ProductsPanel extends React.Component {
   constructor(props) {
     super(props);
@@ -95,6 +97,10 @@ class ProductsPanel extends React.Component {
   }
 
   handleDeleteNode(node) {
+    const dd = getNormalizedData();
+
+    console.log(dd);
+
     const { parent } = node;
     parent.children = parent.children.filter(item => item.id !== node.id);
     this.updateTreeRoot();
