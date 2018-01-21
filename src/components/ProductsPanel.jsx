@@ -26,6 +26,8 @@ class ProductsPanel extends React.Component {
   }
 
   updateTreeRoot() {
+    // trick: update the state
+    // this trick is need because we mutate the data, ideally we should use immutablejs and avoid data mutation
     this.setState(prevState => ({
       treeRoot: prevState.treeRoot,
     }));
@@ -40,6 +42,7 @@ class ProductsPanel extends React.Component {
   addCategory(node) {
     this.setState((prevState) => {
       const { treeRoot } = prevState;
+
       treeRoot.children.push({
         id: `${Math.random()}`,
         name: node.itemName,
@@ -54,6 +57,7 @@ class ProductsPanel extends React.Component {
     this.setState((prevState) => {
       const { treeRoot } = prevState;
       const category = treeRoot.children.find(item => item.id === node.category.id);
+
       category.children.push({
         id: Math.random(),
         name: node.itemName,
@@ -69,6 +73,7 @@ class ProductsPanel extends React.Component {
       const { treeRoot } = prevState;
       const category = treeRoot.children.find(item => item.id === node.category.id);
       const brand = category.children.find(item => item.id === node.brand.id);
+
       brand.children.push({
         id: Math.random(),
         name: node.itemName,

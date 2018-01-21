@@ -6,6 +6,7 @@ const childrenPropsToNodeTypes = {
 };
 const dataProps = ['id', 'name'];
 
+// the data should be improved a bit
 const normalizeData = (data, type, parent) => {
   const newData = {
     type,

@@ -13,6 +13,7 @@ class Dialog extends React.Component {
   constructor(props) {
     super(props);
 
+    // initial state
     this.state = {
       category: null,
       brand: null,
@@ -32,6 +33,7 @@ class Dialog extends React.Component {
       itemName: '',
     };
 
+    // collect all categories and brands to show them in drodowns
     if (type === 'brand' || type === 'product') {
       newState.category = data.children.length ? data.children[0] : null;
       if (type === 'product') {
@@ -47,9 +49,19 @@ class Dialog extends React.Component {
   handleSubmit(event) {
     event.preventDefault();
 
-    const { itemName } = this.state;
+    // very primitive validation
+    const { itemName, category, brand } = this.state;
+    const { type } = this.props;
     if (!itemName) {
       alert('Field "Name" is empty. It should not be!');
+      return;
+    }
+    if ((type === 'brand' || type === 'product') && !category) {
+      alert('You should choose category');
+      return;
+    }
+    if (type === 'product' && !brand) {
+      alert('You should choose brand');
       return;
     }
 
@@ -60,6 +72,7 @@ class Dialog extends React.Component {
     const { value } = event.target;
     const category = this.props.data.children.find(item => item.id === value);
     let brand;
+
     if (category) {
       brand = category.children.length ? category.children[0] : null;
     }
@@ -93,7 +106,7 @@ class Dialog extends React.Component {
   renderOptions(items, emptyTitle) {
     let options;
 
-    if (Array.isArray(items)) {
+    if (Array.isArray(items) && items.length) {
       options = items.map(item => (
         <option key={item.id} value={item.id}>
           {item.name}
@@ -101,7 +114,7 @@ class Dialog extends React.Component {
       ));
     } else {
       options = (
-        <option disabled value defaultValue>
+        <option disabled value="" defaultValue="">
           {emptyTitle}
         </option>
       );
@@ -127,7 +140,7 @@ class Dialog extends React.Component {
                 value={category ? category.id : ''}
                 onChange={this.handleCategoryChange}
               >
-                {data && this.renderOptions(data.children)}
+                {data && this.renderOptions(data.children, '-- There are no categories here! --')}
               </select>
             </label>
           )}
@@ -140,7 +153,8 @@ class Dialog extends React.Component {
                 value={brand ? brand.id : ''}
                 onChange={this.handleBrandChange}
               >
-                {category && this.renderOptions(category.children)}
+                {category &&
+                  this.renderOptions(category.children, '-- There are no brands here! --')}
               </select>
             </label>
           )}
