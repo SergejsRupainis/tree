@@ -1,10 +1,10 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { getEntities, getCategories, getCategoryBrands } from '../selector';
+import { getTreeRoot, getEntities } from '../selector';
 import Tree from '../components/Tree';
 import ActionPanel from './ActionPanel';
 import Dialog from './Dialog';
-import { categoryAdd, brandAdd, productAdd, nodeDelete } from '../actions';
+import { nodeDelete } from '../actions';
 
 class TreePanel extends React.Component {
   constructor(props) {
@@ -13,17 +13,17 @@ class TreePanel extends React.Component {
       dialogType: null,
     };
     this.handleDeleteNode = this.handleDeleteNode.bind(this);
-    this.closeDialog = this.closeDialog.bind(this);
-    this.addItem = this.addItem.bind(this);
+    this.handleCloseDialog = this.handleCloseDialog.bind(this);
+    this.handleDialogOpen = this.handleDialogOpen.bind(this);
   }
 
-  closeDialog() {
+  handleCloseDialog() {
     this.setState({
       dialogType: null,
     });
   }
 
-  addItem(type) {
+  handleDialogOpen(type) {
     this.setState({
       dialogType: type,
     });
@@ -34,27 +34,26 @@ class TreePanel extends React.Component {
   }
 
   render() {
-    console.log(this.props.brands.toJS());
     return (
       <div className="tree-panel">
-        <ActionPanel addItem={this.addItem} />
-        <Tree entities={this.props.entities} onDeleteNode={this.handleDeleteNode} />
-        <Dialog type={this.state.dialogType} onDialogClose={this.closeDialog} />
+        <ActionPanel onOpenDialog={this.handleDialogOpen} />
+        <Tree
+          root={this.props.treeRoot}
+          entities={this.props.entities}
+          onDeleteNode={this.handleDeleteNode}
+        />
+        <Dialog type={this.state.dialogType} onDialogClose={this.handleCloseDialog} />
       </div>
     );
   }
 }
 
 const mapDispatchToProps = dispatch => ({
-  addCategory: name => dispatch(categoryAdd(name)),
-  addBrand: (categoryId, name) => dispatch(brandAdd(categoryId, name)),
-  addProduct: (brandId, name) => dispatch(productAdd(brandId, name)),
   deleteNode: (type, id) => dispatch(nodeDelete(type, id)),
 });
 const mapStateToProps = state => ({
   entities: getEntities(state),
-  categories: getCategories(state),
-  brands: getCategoryBrands(state, 'category-57b42bfe31b6f0132cb96836'),
+  treeRoot: getTreeRoot(state),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(TreePanel);

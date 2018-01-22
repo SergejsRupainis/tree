@@ -1,11 +1,11 @@
 import React from 'react';
 import './TreeNode.css';
 
-const childrenProperties = ['categories', 'brands', 'products'];
+// const childrenProperties = ['categories', 'brands', 'products'];
 
 const renderChildren = (node, entities, onDeleteNode) => {
-  const childrenProp = childrenProperties.find(item => node.get(item));
-  const children = node.get(childrenProp);
+  const childrenProperty = node.get('childrenProperty');
+  const children = node.get(childrenProperty);
 
   if (!children) {
     return null;
@@ -13,7 +13,7 @@ const renderChildren = (node, entities, onDeleteNode) => {
   return (
     <div className={node.id === 'root' ? '' : 'tree-children'}>
       {children.map((childId) => {
-        const child = entities.getIn([childrenProp, childId]);
+        const child = entities.getIn([childrenProperty, childId]);
         return (
           <TreeNode
             key={child.get('id')}
@@ -35,7 +35,7 @@ const renderNode = (node, entities, onDeleteNode) => (
         Delete
       </button>
     </span>
-    {renderChildren(node, entities, onDeleteNode)}
+    {node.get('childrenProperty') && renderChildren(node, entities, onDeleteNode)}
   </div>
 );
 

@@ -1,18 +1,26 @@
 import { createSelector } from 'reselect';
 
-export const getEntities = state => state.getIn(['productsTree', 'entities']);
+const getProductsTree = state => state.get('productsTree');
 
-export const getCategories = (state) => {
-  const rootCategories = state.getIn(['productsTree', 'entities', 'root', 'root', 'categories']);
-  const categories = state.getIn(['productsTree', 'entities', 'categories']);
+const getCategoryBrands = (state, categoryId) =>
+  state.getIn(['productsTree', 'entities', 'categories', categoryId, 'brands']);
+
+export const getTreeRoot = createSelector([getProductsTree], productsTree =>
+  productsTree.getIn(['entities', 'root', 'root']));
+
+export const getEntities = createSelector([getProductsTree], productsTree =>
+  productsTree.get('entities'));
+
+export const getCategories = createSelector([getProductsTree], (productsTree) => {
+  const rootCategories = productsTree.getIn(['entities', 'root', 'root', 'categories']);
+  const categories = productsTree.getIn(['entities', 'categories']);
   return rootCategories.map(categoryId => categories.get(categoryId));
-};
+});
 
-const getCategory = (state, categoryId) =>
-  state.getIn(['productsTree', 'entities', 'categories', categoryId]);
-
-export const getCategoryBrands = (state, categoryId) => {
-  const categoryBrands = getCategory(state, categoryId).get('brands');
-  const brands = state.getIn(['productsTree', 'entities', 'brands']);
-  return categoryBrands.map(brandId => brands.get(brandId));
-};
+export const getCategoryBrandsList = createSelector(
+  [getProductsTree, getCategoryBrands],
+  (productsTree, categoryBrands) => {
+    const brands = productsTree.getIn(['entities', 'brands']);
+    return categoryBrands.map(brandId => brands.get(brandId));
+  },
+);

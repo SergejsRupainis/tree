@@ -7,6 +7,7 @@ import store from './store';
 import registerServiceWorker from './registerServiceWorker';
 
 /* eslint-disable react/jsx-filename-extension */
+// files with JSX should have *.jsx extension but this file - index.js
 ReactDOM.render(
   <Provider store={store}>
     <App />

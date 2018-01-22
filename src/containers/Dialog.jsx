@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import Overlay from '../components/Overlay';
 import './Dialog.css';
-import { getEntities, getCategories, getCategoryBrands } from '../selector';
+import { getEntities, getCategories, getCategoryBrandsList } from '../selector';
 import { categoryAdd, brandAdd, productAdd, nodeDelete } from '../actions';
 
 const mapDialogTypesToTitles = {
@@ -36,8 +36,10 @@ class Dialog extends React.Component {
         brands: [],
         itemName: '',
       };
-      newState.category = nextProps.categories.get(0);
-      newState.brands = nextProps.getCategoryBrands(newState.category.get('id'));
+      newState.category = nextProps.categories.size ? nextProps.categories.get(0) : null;
+      newState.brands = newState.category
+        ? nextProps.getCategoryBrands(newState.category.get('id'))
+        : null;
       newState.brand = newState.brands && newState.brands.size ? newState.brands.get(0) : null;
 
       return newState;
@@ -60,6 +62,7 @@ class Dialog extends React.Component {
     }
     if (type === 'product' && !brand) {
       alert('You should choose brand');
+      return;
     }
 
     switch (type) {
@@ -107,7 +110,7 @@ class Dialog extends React.Component {
   renderOptions(items, emptyTitle) {
     let options;
 
-    if (items.size) {
+    if (items && items.size) {
       options = items.map(item => (
         <option key={item.get('id')} value={item.get('id')}>
           {item.get('name')}
@@ -215,7 +218,7 @@ const mapDispatchToProps = dispatch => ({
 const mapStateToProps = state => ({
   entities: getEntities(state),
   categories: getCategories(state),
-  getCategoryBrands: categoryId => getCategoryBrands(state, categoryId),
+  getCategoryBrands: categoryId => getCategoryBrandsList(state, categoryId),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Dialog);

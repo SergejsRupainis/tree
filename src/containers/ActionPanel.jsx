@@ -1,15 +1,15 @@
 import React from 'react';
 
-const ActionPanel = ({ addItem }) => (
+const ActionPanel = ({ onOpenDialog }) => (
   <div>
     <span>Actions: </span>
-    <button type="button" onClick={() => addItem('category')}>
+    <button type="button" onClick={() => onOpenDialog('category')}>
       Add Category
     </button>
-    <button type="button" onClick={() => addItem('brand')}>
+    <button type="button" onClick={() => onOpenDialog('brand')}>
       Add Brand
     </button>
-    <button type="button" onClick={() => addItem('product')}>
+    <button type="button" onClick={() => onOpenDialog('product')}>
       Add Product
     </button>
   </div>

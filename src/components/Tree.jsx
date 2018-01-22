@@ -2,13 +2,9 @@ import React from 'react';
 import TreeNode from './TreeNode';
 import './Tree.css';
 
-const Tree = ({ entities, onDeleteNode }) => (
+const Tree = ({ root, entities, onDeleteNode }) => (
   <div className="tree">
-    <TreeNode
-      node={entities.getIn(['root', 'root'])}
-      entities={entities}
-      onDeleteNode={onDeleteNode}
-    />
+    <TreeNode node={root} entities={entities} onDeleteNode={onDeleteNode} />
   </div>
 );
 

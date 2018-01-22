@@ -22,6 +22,7 @@ const CATEGORY_ADD = (domain, action) => {
         id: newId,
         name,
         brands: [],
+        childrenProperty: 'brands',
       }),
     );
     const length = productsTree.getIn(PATHS.rootCategories).size;
@@ -40,6 +41,7 @@ const BRAND_ADD = (domain, action) => {
         id: newId,
         name,
         products: [],
+        childrenProperty: 'products',
       }),
     );
     const brandsPath = [...PATHS.categories, categoryId, 'brands'];
@@ -58,6 +60,7 @@ const PRODUCT_ADD = (domain, action) => {
       Immutable.fromJS({
         id: newId,
         name,
+        childrenProperty: null,
       }),
     );
     const productsPath = [...PATHS.brands, brandId, 'products'];

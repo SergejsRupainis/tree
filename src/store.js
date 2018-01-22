@@ -8,6 +8,7 @@ const reducer = combineReducers(reducers);
 const store = createStore(
   reducer,
   Immutable.Map({}),
+  // we can use Redux DEV tools
   window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__(),
 );
 /* eslint-enable */
