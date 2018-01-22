@@ -4,12 +4,14 @@ import data from './responseData.json';
 const prepareData = () => {
   data.id = 'root';
   data.categories.forEach((category) => {
+    category.originId = category.id;
+    category.id = `category-${category.originId}`;
     category.brands.forEach((brand) => {
       brand.originId = brand.id;
-      brand.id = `${category.id}-${brand.originId}`;
+      brand.id = `brand-${category.originId}-${brand.originId}`;
       brand.products.forEach((product) => {
         product.originId = product.id;
-        product.id = `${brand.id}-${product.originId}`;
+        product.id = `product-${category.originId}-${brand.originId}-${product.originId}`;
       });
     });
   });

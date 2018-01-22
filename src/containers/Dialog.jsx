@@ -1,7 +1,9 @@
 import React from 'react';
-// import data from '../data/responseData.json';
-import Overlay from './Overlay';
+import { connect } from 'react-redux';
+import Overlay from '../components/Overlay';
 import './Dialog.css';
+import { getEntities, getCategories, getCategoryBrands } from '../selector';
+import { categoryAdd, brandAdd, productAdd, nodeDelete } from '../actions';
 
 const mapDialogTypesToTitles = {
   product: 'Add Product',
@@ -17,6 +19,7 @@ class Dialog extends React.Component {
     this.state = {
       category: null,
       brand: null,
+      brands: [],
       itemName: '',
     };
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -26,24 +29,19 @@ class Dialog extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { type, data } = nextProps;
-    const newState = {
-      category: null,
-      brand: null,
-      itemName: '',
-    };
+    this.setState(() => {
+      const newState = {
+        category: null,
+        brand: null,
+        brands: [],
+        itemName: '',
+      };
+      newState.category = nextProps.categories.get(0);
+      newState.brands = nextProps.getCategoryBrands(newState.category.get('id'));
+      newState.brand = newState.brands && newState.brands.size ? newState.brands.get(0) : null;
 
-    // collect all categories and brands to show them in drodowns
-    if (type === 'brand' || type === 'product') {
-      newState.category = data.children.length ? data.children[0] : null;
-      if (type === 'product') {
-        newState.brand =
-          newState.category && newState.category.children.length
-            ? newState.category.children[0]
-            : null;
-      }
-    }
-    this.setState(newState);
+      return newState;
+    });
   }
 
   handleSubmit(event) {
@@ -62,36 +60,39 @@ class Dialog extends React.Component {
     }
     if (type === 'product' && !brand) {
       alert('You should choose brand');
-      return;
     }
 
-    this.props.addNewNode({ ...this.state, type: this.props.type });
+    switch (type) {
+      case 'category':
+        this.props.addCategory(this.state.itemName);
+        break;
+      case 'brand':
+        this.props.addBrand(category.get('id'), this.state.itemName);
+        break;
+      case 'product':
+        this.props.addProduct(brand.get('id'), this.state.itemName);
+        break;
+      default:
+    }
+
+    this.props.onDialogClose();
   }
 
   handleCategoryChange(event) {
     const { value } = event.target;
-    const category = this.props.data.children.find(item => item.id === value);
-    let brand;
-
-    if (category) {
-      brand = category.children.length ? category.children[0] : null;
-    }
-
+    const brands = this.props.getCategoryBrands(value);
     this.setState({
-      category,
-      brand,
+      category: this.props.categories.find(category => category.get('id') === value),
+      brand: brands && brands.size ? brands.get(0) : null,
+      brands,
     });
   }
 
   handleBrandChange(event) {
-    if (this.state.category) {
-      const value = Number(event.target.value);
-      const brand = this.state.category.children.find(item => item.id === value);
-
-      this.setState({
-        brand,
-      });
-    }
+    const { value } = event.target;
+    this.setState(prevState => ({
+      brand: prevState.brands.find(brand => brand.get('id') === value),
+    }));
   }
 
   handleChange(event) {
@@ -106,10 +107,10 @@ class Dialog extends React.Component {
   renderOptions(items, emptyTitle) {
     let options;
 
-    if (Array.isArray(items) && items.length) {
+    if (items.size) {
       options = items.map(item => (
-        <option key={item.id} value={item.id}>
-          {item.name}
+        <option key={item.get('id')} value={item.get('id')}>
+          {item.get('name')}
         </option>
       ));
     } else {
@@ -124,8 +125,10 @@ class Dialog extends React.Component {
   }
 
   renderForm() {
-    const { type, data } = this.props;
-    const { category, brand } = this.state;
+    const { type, categories } = this.props;
+    const {
+      category, brand, brands, itemName,
+    } = this.state;
     const title = mapDialogTypesToTitles[type];
 
     return (
@@ -140,7 +143,7 @@ class Dialog extends React.Component {
                 value={category ? category.id : ''}
                 onChange={this.handleCategoryChange}
               >
-                {data && this.renderOptions(data.children, '-- There are no categories here! --')}
+                {this.renderOptions(categories, '-- There are no categories here! --')}
               </select>
             </label>
           )}
@@ -153,8 +156,7 @@ class Dialog extends React.Component {
                 value={brand ? brand.id : ''}
                 onChange={this.handleBrandChange}
               >
-                {category &&
-                  this.renderOptions(category.children, '-- There are no brands here! --')}
+                {this.renderOptions(brands, '-- There are no brands here! --')}
               </select>
             </label>
           )}
@@ -164,7 +166,7 @@ class Dialog extends React.Component {
               id="itemName"
               name="itemName"
               type="text"
-              value={this.state.itemName}
+              value={itemName}
               onChange={this.handleChange}
             />
           </label>
@@ -204,4 +206,16 @@ class Dialog extends React.Component {
   }
 }
 
-export default Dialog;
+const mapDispatchToProps = dispatch => ({
+  addCategory: name => dispatch(categoryAdd(name)),
+  addBrand: (categoryId, name) => dispatch(brandAdd(categoryId, name)),
+  addProduct: (brandId, name) => dispatch(productAdd(brandId, name)),
+  deleteNode: (type, id) => dispatch(nodeDelete(type, id)),
+});
+const mapStateToProps = state => ({
+  entities: getEntities(state),
+  categories: getCategories(state),
+  getCategoryBrands: categoryId => getCategoryBrands(state, categoryId),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Dialog);

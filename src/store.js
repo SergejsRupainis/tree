@@ -4,6 +4,12 @@ import Immutable from 'immutable';
 import reducers from './reducers';
 
 const reducer = combineReducers(reducers);
-const store = createStore(reducer, Immutable.Map({}));
+/* eslint-disable no-underscore-dangle */
+const store = createStore(
+  reducer,
+  Immutable.Map({}),
+  window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__(),
+);
+/* eslint-enable */
 
 export default store;

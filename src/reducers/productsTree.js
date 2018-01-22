@@ -4,67 +4,119 @@ import getNormalizedData from '../data/getNormalizedData';
 
 const initialState = Immutable.fromJS(getNormalizedData());
 
+const PATHS = {
+  rootCategories: ['entities', 'root', 'root', 'categories'],
+  categories: ['entities', 'categories'],
+  brands: ['entities', 'brands'],
+  products: ['entities', 'products'],
+};
+
 const CATEGORY_ADD = (domain, action) => {
-  const newId = `${Math.random()}`;
+  const { name } = action.data;
+  const newId = `category-${Math.random()}`;
 
   return domain.withMutations((productsTree) => {
     productsTree.setIn(
-      ['entities', 'categories', newId],
-      Immutable.fromJS({ id: newId, name: 'test', brands: [] }),
+      [...PATHS.categories, newId],
+      Immutable.fromJS({
+        id: newId,
+        name,
+        brands: [],
+      }),
     );
-    const length = productsTree.getIn(['entities', 'root', 'root', 'categories']).size;
-    productsTree.setIn(['entities', 'root', 'root', 'categories', length], newId);
+    const length = productsTree.getIn(PATHS.rootCategories).size;
+    productsTree.setIn([...PATHS.rootCategories, length], newId);
   });
 };
 
 const BRAND_ADD = (domain, action) => {
-  const newId = `${Math.random()}`;
+  const { categoryId, name } = action.data;
+  const newId = `brand-${Math.random()}`;
 
   return domain.withMutations((productsTree) => {
     productsTree.setIn(
-      ['entities', 'brands', newId],
-      Immutable.fromJS({ id: newId, name: 'test', products: [] }),
+      [...PATHS.brands, newId],
+      Immutable.fromJS({
+        id: newId,
+        name,
+        products: [],
+      }),
     );
-    const length = productsTree.getIn([
-      'entities',
-      'categories',
-      '57b42bfe7e7298611b333652',
-      'brands',
-    ]).size;
-    productsTree.setIn(
-      ['entities', 'categories', '57b42bfe7e7298611b333652', 'brands', length],
-      newId,
-    );
+    const brandsPath = [...PATHS.categories, categoryId, 'brands'];
+    const length = productsTree.getIn(brandsPath).size;
+    productsTree.setIn([...brandsPath, length], newId);
   });
 };
 
 const PRODUCT_ADD = (domain, action) => {
-  const newId = `${Math.random()}`;
+  const { brandId, name } = action.data;
+  const newId = `product-${Math.random()}`;
 
   return domain.withMutations((productsTree) => {
     productsTree.setIn(
-      ['entities', 'products', newId],
-      Immutable.fromJS({ id: newId, name: 'test' }),
+      [...PATHS.products, newId],
+      Immutable.fromJS({
+        id: newId,
+        name,
+      }),
     );
-    const length = productsTree.getIn([
-      'entities',
-      'brands',
-      '57b42bfe31b6f0132cb96836-1',
-      'products',
-    ]).size;
-    productsTree.setIn(
-      ['entities', 'brands', '57b42bfe31b6f0132cb96836-1', 'products', length],
-      newId,
-    );
+    const productsPath = [...PATHS.brands, brandId, 'products'];
+    const length = productsTree.getIn(productsPath).size;
+    productsTree.setIn([...productsPath, length], newId);
   });
 };
 
 const NODE_DELETE = (domain, action) => {
-  const dd = domain.withMutations((productsTree) => {
-    // productsTree.deleteIn[]
-  });
-  console.log(dd.toJS());
-  return dd;
+  const { id } = action.data;
+
+  // first part of id is a type of the node
+  const [type] = id.split('-');
+  let nodePath;
+  let parentPath;
+  let childrenName;
+
+  switch (type) {
+    case 'product':
+      nodePath = PATHS.products;
+      parentPath = PATHS.brands;
+      childrenName = 'products';
+      break;
+    case 'brand':
+      parentPath = PATHS.categories;
+      nodePath = PATHS.brands;
+      childrenName = 'brands';
+      break;
+    case 'category':
+      nodePath = PATHS.categories;
+      parentPath = PATHS.rootCategories;
+      break;
+    default:
+  }
+
+  let newDomain = domain.deleteIn([...nodePath, id]);
+
+  let nodeIndex;
+  let parentId;
+
+  if (type === 'category') {
+    nodeIndex = newDomain.getIn(parentPath).findIndex(x => x === id);
+    if (nodeIndex >= 0) {
+      newDomain = newDomain.deleteIn([...parentPath, nodeIndex]);
+    }
+  } else {
+    parentId = domain.getIn(parentPath).findKey((x) => {
+      const index = x.get(childrenName).findIndex(k => k === id);
+      if (index >= 0) {
+        nodeIndex = index;
+        return true;
+      }
+      return false;
+    });
+    if (parentId && nodeIndex >= 0) {
+      newDomain = newDomain.deleteIn([...parentPath, parentId, childrenName, nodeIndex]);
+    }
+  }
+  return newDomain;
 };
 
 export default createReducer(initialState, {
